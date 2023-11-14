@@ -4,6 +4,7 @@ def test_list_objects(client, setup_bucket):
     bucket_name = 'petr_test_bucket'
 
     # With these two files I check that after 1000 objects additional ones are not missing after adding
+    # and that still returns 1000 objects despite having 1002 objects
     client.upload_file('data/file_for_further_uploading.txt', bucket_name, 'file_for_further_uploading.txt')
     # Adding another type of file for a change
     client.upload_file('data/pytest_logo_curves.svg', bucket_name, 'pytest_logo_curves.svg')
