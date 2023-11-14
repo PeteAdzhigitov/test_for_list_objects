@@ -20,18 +20,26 @@ def setup_bucket(client, bucket_name='petr_test_bucket'):
     except ClientError:
         return 'Bucket hasn\'t been found'
 
-    client.upload_file('data/file_for_further_uploading.txt', bucket_name, 'file_for_further_uploading.txt')
-
-    for number in range(0,1001):
+    for number in range(0,1000):
         client.put_object(Body='Some_text_added_to_files', Bucket=bucket_name, Key=f'test_file{number}.txt')
 
 def teardown(client, bucket_name):
-    objects_to_delete = []
-    for key in client.list_objects(Bucket=bucket_name)['Contents']:
-        object = {'Key':key['Key']}
-        objects_to_delete.append(object)
 
-    client.delete_objects(Bucket=bucket_name, Delete={'Objects': objects_to_delete})
+    condition = False
+    while condition != True:
+        objects_to_delete = []
+        for key in client.list_objects(Bucket=bucket_name)['Contents']:
+            object = {'Key':key['Key']}
+            objects_to_delete.append(object)
+
+        client.delete_objects(Bucket=bucket_name, Delete={'Objects': objects_to_delete})
+        try:
+            objects = len(client.list_objects(Bucket=bucket_name)['Contents'])
+            if objects != 0:
+                continue
+        except KeyError:
+            condition = True
+
     delete_bucket = client.delete_bucket(Bucket=bucket_name)
     try:
         assert delete_bucket['ResponseMetadata']['HTTPStatusCode'] == 204
